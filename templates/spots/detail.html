@@ -1,5 +1,5 @@
-{% load static %}
 {% extends "base.html" %}
+{% load static %}
 {% block title %}{{ spot.name }}｜臺灣觀光資訊網{% endblock %}
 {% block content %}
 <p class="crumb"><a href="{% url 'spots:home' %}">首頁</a> / <a href="{{ back_url }}">查詢結果</a> / 景點詳情</p>
