@@ -25,6 +25,8 @@ TOURISM_SEARCH = "https://www.taiwan.net.tw/m1.aspx?sNo=0000064&keyString="
 TRA = "臺鐵班次請至臺灣鐵路官網查詢：https://www.railway.gov.tw/"
 BUS = "客運與台灣好行路線、班次請以官方公告為準：https://www.taiwantrip.com.tw/"
 
+PHOTO_MAP = {'太平老街': 'https://commons.wikimedia.org/wiki/Special:FilePath/%E6%96%97%E5%85%AD%E5%A4%AA%E5%B9%B3%E8%80%81%E8%A1%97_Douliu_Taiping_Road_-_panoramio.jpg?width=800', '綠色隧道景觀公園': 'https://commons.wikimedia.org/wiki/Special:FilePath/%E7%B6%A0%E8%89%B2%E9%9A%A7%E9%81%93_-_panoramio.jpg?width=800', '椬梧滯洪池': 'https://commons.wikimedia.org/wiki/Special:FilePath/%E6%88%90%E9%BE%8D%E6%BF%95%E5%9C%B020261117_%E7%A8%AE%E5%AD%90%E8%88%87%E5%A4%95%E9%99%BD.jpg?width=800', '北港朝天宮': 'https://commons.wikimedia.org/wiki/Special:FilePath/%E5%8C%97%E6%B8%AF%E6%9C%9D%E5%A4%A9%E5%AE%AE_%E5%A4%A9%E4%B8%8A%E8%81%96%E6%AF%8D_%E5%BB%9F%E5%AE%87%E6%8B%8D%E6%94%9D.jpg?width=800', '西螺大橋': 'https://commons.wikimedia.org/wiki/Special:FilePath/%E8%A5%BF%E8%9E%BA%E5%A4%A7%E6%A9%8B_(cropped).jpg?width=800', '西螺延平老街': 'https://commons.wikimedia.org/wiki/Special:FilePath/%E6%96%97%E5%85%AD%E5%A4%AA%E5%B9%B3%E8%B7%AF%E8%80%81%E8%A1%97_Douliu_Taiping_Old_Street_-_panoramio.jpg?width=800', '劍湖山世界': 'https://commons.wikimedia.org/wiki/Special:FilePath/Janfusun_Fancyworld_Sky_Wheel_20211009.jpg?width=800', '雲林布袋戲館': 'https://commons.wikimedia.org/wiki/Special:FilePath/%E9%9B%B2%E6%9E%97%E5%B8%83%E8%A2%8B%E6%88%B2%E9%A4%A8.jpg?width=800', '虎尾糖廠': 'https://commons.wikimedia.org/wiki/Special:FilePath/%E8%99%8E%E5%B0%BE%E7%B3%96%E5%BB%A001.JPG?width=800', '雲林故事館': 'https://commons.wikimedia.org/wiki/Special:FilePath/Residence_of_the_Huwei_County_Magistrate_(presently_Yunlin_Story_House)_(Taiwan).jpg?width=800', '草嶺風景區': 'https://commons.wikimedia.org/wiki/Special:FilePath/Caoling_(Yunlin_County).JPG?width=800', '成龍濕地': 'https://commons.wikimedia.org/wiki/Special:FilePath/%E6%88%90%E9%BE%8D%E6%BF%95%E5%9C%B020261117_%E7%A8%AE%E5%AD%90%E8%88%87%E5%A4%95%E9%99%BD.jpg?width=800', '高美濕地': 'https://commons.wikimedia.org/wiki/Special:FilePath/Gaomei_Wetlands_%E9%AB%98%E7%BE%8E%E6%BF%95%E5%9C%B0_-_panoramio_(2).jpg?width=800', '鹿港老街': 'https://commons.wikimedia.org/wiki/Special:FilePath/%E9%B9%BF%E6%B8%AF%E8%80%81%E8%A1%97.jpg?width=800', '檜意森活村': 'https://commons.wikimedia.org/wiki/Special:FilePath/Hinoki_Village_wooden_wall_by_Chiayi_Forestry_District_Office_20160326.jpg?width=800', '阿里山國家森林遊樂區': 'https://commons.wikimedia.org/wiki/Special:FilePath/Alishan_(%E9%98%BF%E9%87%8C%E5%B1%B1)_-_panoramio.jpg?width=800', '日月潭': 'https://commons.wikimedia.org/wiki/Special:FilePath/View_on_Sun_Moon_Lake,_Taiwan.jpg?width=800', '大稻埕碼頭': 'https://commons.wikimedia.org/wiki/Special:FilePath/Dadaocheng_Wharf.jpg?width=800', '安平古堡': 'https://commons.wikimedia.org/wiki/Special:FilePath/%E5%AE%89%E5%B9%B3%E5%8F%A4%E5%A0%A1_-_Anping_Fortress_-_2012.02_-_panoramio.jpg?width=800'}
+
 SPOTS = [
     {
         "name": "太平老街",
@@ -307,10 +309,14 @@ class Command(BaseCommand):
                     "views": s["views"],
                     "address": f"{s['county']}{s['town']}{s['name']}",
                     "official_url": s["url"] or TOURISM_SEARCH + s["name"],
+                    "image_url": PHOTO_MAP.get(s["name"], ""),
                 },
             )
             if was_created:
                 spot.themes.set([themes[t] for t in s["themes"]])
                 created += 1
+            elif not spot.image_url and s["name"] in PHOTO_MAP:
+                spot.image_url = PHOTO_MAP[s["name"]]
+                spot.save(update_fields=["image_url"])
 
         self.stdout.write(self.style.SUCCESS(f"資料匯入完成：新增 {created} 個景點，目前共 {Spot.objects.count()} 個。"))

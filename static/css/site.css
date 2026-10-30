@@ -215,3 +215,20 @@ input:focus, select:focus { outline: 3px solid #9cc9bf; border-color: var(--teal
   .main-nav { display: none; }
   .main-nav.is-open { display: block; }
 }
+
+
+/* 景點照片顯示樣式（支援後台 image_url 與預設景點照片，載入失敗自動退回色塊） */
+.card-cover, .detail-cover {
+  position: relative;
+  overflow: hidden;
+}
+.card-cover .cover-img, .detail-cover .cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.card-cover .views {
+  position: relative;
+  z-index: 2;
+}

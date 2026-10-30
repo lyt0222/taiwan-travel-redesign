@@ -1,5 +1,9 @@
+{% load static %}
 <article class="card">
   <div class="card-cover" style="--c: {{ spot.cover_color }}" aria-hidden="true">
+    {% if spot.image_url %}
+    <img class="cover-img" src="{{ spot.image_url }}" alt="{{ spot.name }}" loading="lazy" onerror="this.style.display='none'">
+    {% endif %}
     <span class="views">點閱 {{ spot.views }}</span>
   </div>
   <div class="card-body">

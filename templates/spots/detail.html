@@ -6,7 +6,11 @@
 {% include "spots/_steps.html" with step=3 %}
 
 <div class="detail-head">
-  <div class="detail-cover" style="--c: {{ spot.cover_color }}" aria-hidden="true"></div>
+  <div class="detail-cover" style="--c: {{ spot.cover_color }}" aria-hidden="true">
+    {% if spot.image_url %}
+    <img class="cover-img" src="{{ spot.image_url }}" alt="{{ spot.name }}" onerror="this.style.display='none'">
+    {% endif %}
+  </div>
   <div>
     <p class="loc big"><span class="loc-label">所在地</span>{{ spot.county.name }} {{ spot.town.name }}</p>
     <p class="summary-lg">{{ spot.summary }}</p>
