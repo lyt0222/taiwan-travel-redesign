@@ -2,7 +2,9 @@
 <article class="card">
   <div class="card-cover" style="--c: {{ spot.cover_color }}" aria-hidden="true">
     {% if spot.image_url %}
-    <img class="cover-img" src="{{ spot.image_url }}" alt="{{ spot.name }}" loading="lazy" onerror="this.style.display='none'">
+    <img class="cover-img" src="{{ spot.image_url }}" alt="{{ spot.name }}" referrerpolicy="no-referrer" loading="lazy" onerror="this.onerror=null;this.src='{% static 'images/travel-illustration.jpg' %}'">
+    {% else %}
+    <img class="cover-img" src="{% static 'images/travel-illustration.jpg' %}" alt="{{ spot.name }}" loading="lazy">
     {% endif %}
     <span class="views">點閱 {{ spot.views }}</span>
   </div>
