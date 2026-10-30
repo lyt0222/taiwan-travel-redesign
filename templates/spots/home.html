@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <div class="hero-text">
+    <h1>找景點，先從地區開始</h1>
+    <p>先選地區與主題就能查詢，不必先讀長篇介紹。每個結果都標示縣市與鄉鎮。</p>
+  </div>
+  <form class="quick-search" method="get" action="{% url 'spots:results' %}">
+    <div class="field">
+      <label for="qs-county">地區</label>
+      <select id="qs-county" name="county">
+        <option value="">全部縣市</option>
+        {% for c in counties %}<option value="{{ c.pk }}">{{ c.name }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label for="qs-theme">主題</label>
+      <select id="qs-theme" name="theme">
+        <option value="">全部主題</option>
+        {% for t in themes %}<option value="{{ t.slug }}">{{ t.name }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label for="qs-q">關鍵字</label>
+      <input id="qs-q" name="q" type="search" placeholder="例如：老街、濕地">
+    </div>
+    <button class="btn btn-primary" type="submit">查詢景點</button>
+  </form>
+</section>
+
+<section class="flows">
+  <h2>依需求開始</h2>
+  <div class="flow-grid">
+    {% for key, f in flows.items %}
+    <a class="flow-card" href="{% url 'spots:search' %}?flow={{ key }}">
+      <span class="flow-tag">{{ f.persona }}</span>
+      <strong>{{ f.title }}</strong>
+      <span>{{ f.lead }}</span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section id="themes" class="theme-list">
+  <h2>旅遊主題</h2>
+  <ul>
+    {% for t in themes %}
+    <li><a href="{% url 'spots:results' %}?theme={{ t.slug }}"><strong>{{ t.name }}</strong><span>{{ t.description }}</span></a></li>
+    {% endfor %}
+  </ul>
+</section>
+
+<section>
+  <h2>熱門景點</h2>
+  <div class="card-grid">
+    {% for spot in popular %}{% include "spots/_card.html" %}{% endfor %}
+  </div>
+</section>
+
+{% if not user.is_authenticated %}
+<section class="member-cta">
+  <div>
+    <strong>登入會員，把景點加入「我的行程」</strong>
+    <p>可記錄預計出遊日與備註，下次打開直接查看。</p>
+  </div>
+  <a class="btn btn-primary" href="{% url 'accounts:register' %}">免費註冊</a>
+</section>
+{% endif %}
+{% endblock %}

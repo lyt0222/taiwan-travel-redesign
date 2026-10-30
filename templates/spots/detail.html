@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}{{ spot.name }}｜臺灣觀光資訊網{% endblock %}
+{% block content %}
+<p class="crumb"><a href="{% url 'spots:home' %}">首頁</a> / <a href="{{ back_url }}">查詢結果</a> / 景點詳情</p>
+<h1>{{ spot.name }}</h1>
+{% include "spots/_steps.html" with step=3 %}
+
+<div class="detail-head">
+  <div class="detail-cover" style="--c: {{ spot.cover_color }}" aria-hidden="true"></div>
+  <div>
+    <p class="loc big"><span class="loc-label">所在地</span>{{ spot.county.name }} {{ spot.town.name }}</p>
+    <p class="summary-lg">{{ spot.summary }}</p>
+    <p class="tags">{% for t in spot.themes.all %}<span>#{{ t.name }}</span>{% endfor %}</p>
+    <ul class="facts">
+      <li><span>步行負擔</span>{{ walking_label }}</li>
+      <li><span>大眾運輸</span>{% if spot.transit_friendly %}可達{% else %}班次少，建議先查詢{% endif %}</li>
+      {% if spot.nearest_station %}<li><span>鄰近車站</span>{{ spot.nearest_station }}</li>{% endif %}
+    </ul>
+  </div>
+</div>
+
+<nav class="tabs" aria-label="景點資訊分頁">
+  <a href="?tab=intro{% if back %}&back={{ back|urlencode }}{% endif %}" class="{% if tab == 'intro' %}on{% endif %}">景點簡介</a>
+  <a href="?tab=transport{% if back %}&back={{ back|urlencode }}{% endif %}" class="{% if tab == 'transport' %}on{% endif %}">如何前往</a>
+  <a href="?tab=friendly{% if back %}&back={{ back|urlencode }}{% endif %}" class="{% if tab == 'friendly' %}on{% endif %}">友善指引</a>
+</nav>
+
+<section class="tab-panel">
+  {% if tab == 'intro' %}
+    <p>{{ spot.summary }}</p>
+    <details>
+      <summary>展開完整介紹</summary>
+      <p>{{ spot.description|linebreaksbr }}</p>
+    </details>
+  {% elif tab == 'transport' %}
+    {% if spot.nearest_station %}<p><strong>鄰近車站：</strong>{{ spot.nearest_station }}</p>{% endif %}
+    <p>{{ spot.transport|urlize|linebreaksbr }}</p>
+    <p class="hint">班次、票價會調整，出發前請以官方查詢為準；本站不列出未核對的時刻。</p>
+  {% else %}
+    <p><strong>步行負擔：</strong>{{ walking_label }}</p>
+    <p>{{ spot.friendly_info|linebreaksbr }}</p>
+  {% endif %}
+  {% if spot.official_url %}<p><a href="{{ spot.official_url }}" target="_blank" rel="noopener">查看觀光署官方景點資訊 ↗</a></p>{% endif %}
+</section>
+
+<section class="decide">
+  <h2>這個景點符合你的安排嗎？</h2>
+  {% if user.is_authenticated %}
+  <form method="post" action="{% url 'spots:toggle_favorite' spot.pk %}">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+    {% if is_fav %}
+      <p class="fav-mark">★ 已加入我的行程</p>
+      <button class="btn btn-outline btn-block" type="submit">從我的行程移除</button>
+    {% else %}
+      <button class="btn btn-primary btn-block" type="submit">確認目的地，加入我的行程</button>
+    {% endif %}
+  </form>
+  {% else %}
+  <a class="btn btn-primary btn-block" href="{% url 'accounts:login' %}?next={{ request.get_full_path|urlencode }}">登入後加入我的行程</a>
+  <p class="hint">尚未登入也可以瀏覽所有景點資訊；登入後才能收藏與記錄出遊日。</p>
+  {% endif %}
+  <a class="btn btn-outline btn-block" href="{{ back_url }}">返回結果，換景點</a>
+</section>
+
+{% if nearby %}
+<section>
+  <h2>同縣市的其他景點</h2>
+  <ul class="nearby">
+    {% for n in nearby %}<li><a href="{% url 'spots:detail' n.pk %}">{{ n.name }}</a><span>{{ n.town.name }}</span></li>{% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% endblock %}

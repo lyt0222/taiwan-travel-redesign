@@ -1,0 +1,63 @@
+{% load static %}<!doctype html>
+<html lang="zh-Hant" class="{% if big_font %}big-font{% endif %}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="依所在地與旅遊主題尋找臺灣景點，先選地區再出發。">
+  <title>{% block title %}臺灣觀光資訊網 Redesign｜旅途之間{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/site.css' %}">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">跳至主要內容</a>
+  <header class="site-header">
+    <div class="wrap header-row">
+      <a class="brand" href="{% url 'spots:home' %}">臺灣觀光資訊網 <small style="font-weight:400; opacity:.85; font-size:.82em;">｜旅途之間 Redesign</small></a>
+      <div style="display:flex; align-items:center; gap:.5rem;">
+        <button type="button" class="font-toggle" id="fontToggle" aria-pressed="{% if big_font %}true{% else %}false{% endif %}">
+          大字模式<span class="font-state">{% if big_font %}已開{% else %}關{% endif %}</span>
+        </button>
+        <button type="button" class="menu-toggle" id="menuToggle" aria-controls="main-nav" aria-expanded="false">選單</button>
+      </div>
+    </div>
+  </header>
+
+  <nav id="main-nav" class="main-nav" aria-label="主要導覽">
+    <div class="wrap nav-row">
+      <ul class="nav-links">
+        <li><a href="{% url 'spots:home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">首頁</a></li>
+        <li><a href="{% url 'spots:search' %}" class="{% if request.resolver_match.url_name == 'search' or request.resolver_match.url_name == 'results' %}active{% endif %}">景點查詢</a></li>
+        <li><a href="{% url 'spots:home' %}#themes">旅遊主題</a></li>
+        {% if user.is_authenticated %}
+        <li><a href="{% url 'spots:my_trip' %}" class="{% if request.resolver_match.url_name == 'my_trip' %}active{% endif %}">我的行程</a></li>
+        {% endif %}
+      </ul>
+      <div class="member">
+        {% if user.is_authenticated %}
+          <span class="hello">你好，{{ user.username }}</span>
+          <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button class="link-btn" type="submit">登出</button></form>
+        {% else %}
+          <a href="{% url 'accounts:login' %}?next={{ request.get_full_path|urlencode }}">會員登入</a>
+          <a class="btn-sm" href="{% url 'accounts:register' %}">註冊</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content" class="wrap page" tabindex="-1">
+    {% if messages %}
+    <div class="messages" aria-live="polite">
+      {% for m in messages %}<p class="msg msg-{{ m.tags }}">{{ m }}</p>{% endfor %}
+    </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>第四組期中專題｜臺灣觀光資訊網介面重新設計示範（整合組員 A「旅途之間」與組員 B「三步流程」專案）。景點名稱與所在地依交通部觀光署臺灣觀光資訊網核對，班次與開放時間請以官方公告為準。</p>
+    </div>
+  </footer>
+  <script src="{% static 'js/site.js' %}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

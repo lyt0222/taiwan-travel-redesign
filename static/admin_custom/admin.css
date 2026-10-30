@@ -1,0 +1,2 @@
+/* 後台景點列表：主題欄不要逐字換行 */
+#result_list td.field-theme_list, #result_list td.field-town { white-space: nowrap; }

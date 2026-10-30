@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}查詢結果｜臺灣觀光資訊網{% endblock %}
+{% block content %}
+<p class="crumb"><a href="{% url 'spots:home' %}">首頁</a> / <a href="{{ edit_url }}">景點查詢</a> / 查詢結果</p>
+<h1>查詢結果</h1>
+{% include "spots/_steps.html" with step=2 %}
+
+<section class="cond-summary" aria-label="目前查詢條件">
+  <h2 class="sr">目前條件</h2>
+  <dl>
+    {% for label, value in conditions %}
+    <div><dt>{{ label }}</dt><dd>{{ value }}</dd></div>
+    {% endfor %}
+  </dl>
+  <p class="count">共 <strong>{{ spots|length }}</strong> 筆{% if result_counties %}，分布於：{{ result_counties|join:"、" }}{% endif %}</p>
+  <a class="btn btn-outline" href="{{ edit_url }}">修改查詢條件</a>
+</section>
+
+{% if county_hint %}
+<div class="notice">
+  「{{ keyword }}」是縣市名稱。關鍵字只會比對景點內容，結果可能包含其他縣市的景點。
+  <a href="?county={{ county_hint.pk }}{% if request.GET.theme %}&theme={{ request.GET.theme }}{% endif %}">改為只看 {{ county_hint.name }} 的景點 →</a>
+</div>
+{% endif %}
+
+{% if spots %}
+<div class="card-grid">
+  {% with back=query_string %}
+  {% for spot in spots %}{% include "spots/_card.html" %}{% endfor %}
+  {% endwith %}
+</div>
+{% else %}
+<div class="empty">
+  <p>沒有符合條件的景點。</p>
+  <p>可以試著放寬條件：取消「只看大眾運輸可達」、改選「全部主題」，或換一個地區。</p>
+  <a class="btn btn-primary" href="{{ edit_url }}">修改查詢條件</a>
+</div>
+{% endif %}
+{% endblock %}

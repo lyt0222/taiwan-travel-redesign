@@ -1,0 +1,13 @@
+<article class="card">
+  <div class="card-cover" style="--c: {{ spot.cover_color }}" aria-hidden="true">
+    <span class="views">點閱 {{ spot.views }}</span>
+  </div>
+  <div class="card-body">
+    <h3>{{ spot.name }}</h3>
+    <p class="loc"><span class="loc-label">所在地</span>{{ spot.county.name }} {{ spot.town.name }}</p>
+    <p class="summary">{{ spot.summary }}</p>
+    <p class="tags">{% for t in spot.themes.all %}<span>#{{ t.name }}</span>{% endfor %}{% if spot.transit_friendly %}<span class="tag-transit">大眾運輸可達</span>{% endif %}</p>
+    <a class="btn btn-primary btn-block" href="{% url 'spots:detail' spot.pk %}{% if back %}?back={{ back|urlencode }}{% endif %}">查看景點詳情</a>
+    {% if fav_ids and spot.pk in fav_ids %}<p class="fav-mark">★ 已在我的行程</p>{% endif %}
+  </div>
+</article>

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{{ flow.heading }}｜臺灣觀光資訊網{% endblock %}
+{% block content %}
+<p class="crumb"><a href="{% url 'spots:home' %}">首頁</a> / 景點查詢</p>
+<h1>{{ flow.heading }}</h1>
+{% include "spots/_steps.html" with step=1 %}
+
+<div class="flow-switch" role="tablist" aria-label="查詢情境">
+  <a href="?flow=transit" class="{% if flow_key == 'transit' %}on{% endif %}">大眾運輸旅遊</a>
+  <a href="?flow=family" class="{% if flow_key == 'family' %}on{% endif %}">親子出遊</a>
+  <a href="?flow=senior" class="{% if flow_key == 'senior' %}on{% endif %}">樂齡輕鬆遊</a>
+</div>
+<p class="lead">{{ flow.lead }}</p>
+
+<form class="search-form" method="get" action="{% url 'spots:results' %}">
+  <input type="hidden" name="flow" value="{{ flow_key }}">
+  <div class="field">
+    <label for="county">地區</label>
+    <select id="county" name="county" data-towns-url="{% url 'spots:towns_api' %}">
+      <option value="">全部縣市</option>
+      {% for c in counties %}<option value="{{ c.pk }}" {% if selected_county == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="field">
+    <label for="town">鄉鎮市區</label>
+    <select id="town" name="town" data-selected="{{ request.GET.town }}">
+      <option value="">全部鄉鎮（請先選地區）</option>
+    </select>
+  </div>
+  <div class="field">
+    <label for="theme">主題</label>
+    <select id="theme" name="theme">
+      <option value="">全部主題</option>
+      {% for t in themes %}<option value="{{ t.slug }}" {% if selected_theme == t.slug %}selected{% endif %}>{{ t.name }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="field">
+    <label for="q">關鍵字</label>
+    <input id="q" name="q" type="search" value="{{ request.GET.q }}" placeholder="景點名稱或特色，例如：老街">
+    <small>關鍵字只比對景點內容；要限定地點請用上方「地區」。</small>
+  </div>
+  <div class="field-row">
+    <label class="check"><input type="checkbox" name="transit" value="1" {% if flow.transit or request.GET.transit == '1' %}checked{% endif %}> 只看大眾運輸可達</label>
+    <div class="field inline">
+      <label for="walking">步行負擔</label>
+      <select id="walking" name="walking">
+        <option value="">不限</option>
+        {% for k, v in walking.items %}<option value="{{ k }}" {% if request.GET.walking == k or flow_key == 'senior' and k == 'low' and not request.GET.walking %}selected{% endif %}>{{ v }}以內</option>{% endfor %}
+      </select>
+    </div>
+    <div class="field inline">
+      <label for="sort">排序</label>
+      <select id="sort" name="sort">
+        {% for k, s in sorts.items %}<option value="{{ k }}" {% if request.GET.sort == k %}selected{% endif %}>{{ s.0 }}</option>{% endfor %}
+      </select>
+    </div>
+  </div>
+  <button class="btn btn-primary btn-block" type="submit">查詢景點</button>
+  <p class="hint">先選地區與主題，再查看景點。</p>
+</form>
+{% endblock %}

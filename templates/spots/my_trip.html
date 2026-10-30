@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}我的行程｜臺灣觀光資訊網{% endblock %}
+{% block content %}
+<p class="crumb"><a href="{% url 'spots:home' %}">首頁</a> / 我的行程</p>
+<h1>我的行程</h1>
+<p class="lead">{{ user.username }}，這裡是你收藏的景點。可以填上預計出遊日與備註。</p>
+
+{% if favorites %}
+<div class="trip-list">
+  {% for fav in favorites %}
+  <article class="trip-item">
+    <div class="trip-main">
+      <h2><a href="{% url 'spots:detail' fav.spot.pk %}">{{ fav.spot.name }}</a></h2>
+      <p class="loc"><span class="loc-label">所在地</span>{{ fav.spot.county.name }} {{ fav.spot.town.name }}</p>
+      <p class="summary">{{ fav.spot.summary }}</p>
+    </div>
+    <form class="trip-form" method="post" action="{% url 'spots:update_favorite' fav.pk %}">
+      {% csrf_token %}
+      <label>預計出遊日 <input type="date" name="planned_date" value="{{ fav.planned_date|date:'Y-m-d' }}"></label>
+      <label>備註 <input type="text" name="note" maxlength="100" value="{{ fav.note }}" placeholder="例如：搭 9 點火車"></label>
+      <button class="btn btn-primary" type="submit">儲存</button>
+    </form>
+    <form method="post" action="{% url 'spots:toggle_favorite' fav.spot.pk %}">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{% url 'spots:my_trip' %}">
+      <button class="link-btn danger" type="submit">移除</button>
+    </form>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty">
+  <p>還沒有收藏任何景點。</p>
+  <a class="btn btn-primary" href="{% url 'spots:search' %}">去查詢景點</a>
+</div>
+{% endif %}
+{% endblock %}
